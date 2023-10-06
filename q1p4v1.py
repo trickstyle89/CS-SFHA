@@ -1,11 +1,11 @@
 import hashlib
 from Crypto.Cipher import AES
+import base64
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
-import base64
 
-# File Hash Verification
+# Function to verify the hash of a given file against a provided hash
 def verify_file_hash(file_path, hash_file_path):
     with open(file_path, 'rb') as f:
         file_hash = hashlib.sha256(f.read()).hexdigest()
@@ -19,7 +19,7 @@ def verify_file_hash(file_path, hash_file_path):
             return file_hash == hash_value
     return False
 
-# AESCrypto class
+# AESCrypto class for decryption
 class AESCrypto:
     def md5_hash(self, text):
         h = hashlib.md5()
@@ -37,13 +37,11 @@ class AESCrypto:
         padding_length = decrypted_data[-1]
         return decrypted_data[:-padding_length].decode('utf-8')
 
-# File hash verification
+# Verify the hashes of the files
 directory_path = 'Files/'
-files_to_verify = [
-    directory_path + 'publickey.pem',
-    directory_path + 'part1.txt.enc',
-    directory_path + 'part1.txt.sig'
-]
+files_to_verify = [directory_path + 'publickey.pem', 
+                   directory_path + 'part1.txt.enc', 
+                   directory_path + 'part1.txt.sig']
 
 for file in files_to_verify:
     if verify_file_hash(file, directory_path + 'part1.sha256'):
@@ -51,7 +49,7 @@ for file in files_to_verify:
     else:
         print(f"Hash for {file} does NOT match!")
 
-# Decrypt the text
+# Decrypt using the AESCrypto class
 aes = AESCrypto('sfhaCS2023')
 with open(directory_path + 'part1.txt.enc', 'rb') as f:
     encrypted_data = f.read()
@@ -59,7 +57,7 @@ with open(directory_path + 'part1.txt.enc', 'rb') as f:
 decrypted_text = aes.decrypt(encrypted_data)
 print("\nDecrypted Text:\n", decrypted_text)
 
-# Signature verification
+# Function to verify the signature
 def verify_signature(data, signature_file, public_key_file):
     with open(public_key_file, 'rb') as f:
         public_key = RSA.import_key(f.read())
